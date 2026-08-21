@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 
-// Custom NavLink component for desktop navigation
 const NavLink = ({ children, to, ...props }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -12,11 +11,11 @@ const NavLink = ({ children, to, ...props }) => {
   return (
     <RouterLink
       to={to}
-      className={`px-3 py-2 rounded-md text-sm font-medium ${
+      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
         isActive
-          ? 'text-blue-700 bg-blue-50'
-          : 'text-gray-600 hover:text-blue-700 hover:bg-blue-50'
-      } transition-colors duration-200`}
+          ? 'text-gray-900 bg-gray-100/50'
+          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+      }`}
       {...props}
     >
       {children}
@@ -24,7 +23,6 @@ const NavLink = ({ children, to, ...props }) => {
   );
 };
 
-// Custom MobileNavLink component for mobile navigation
 const MobileNavLink = ({ children, to, onClick }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -35,8 +33,8 @@ const MobileNavLink = ({ children, to, onClick }) => {
       onClick={onClick}
       className={`block px-3 py-2 rounded-md text-base font-medium ${
         isActive
-          ? 'bg-blue-50 text-blue-700'
-          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+          ? 'bg-gray-50 text-gray-900'
+          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
       }`}
     >
       {children}
@@ -49,10 +47,18 @@ const Navbar = () => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { user, logout } = useAuth(); // 'user' will be null when logged out
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout } = useAuth();
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -65,7 +71,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
@@ -75,7 +80,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Get user initials for avatar
   const getUserInitials = (name) => {
     if (!name) return 'U';
     return name
@@ -86,11 +90,8 @@ const Navbar = () => {
       .substring(0, 2);
   };
 
-  // --- RENDER AVATAR (IMAGE OR INITIALS) ---
   const renderAvatar = (isMobile = false) => {
     const sizeClass = isMobile ? 'h-10 w-10' : 'h-9 w-9';
-    
-    // Check if user and profileImageUrl exist
     if (user && user.profileImageUrl) {
         const raw = user.profileImageUrl.replace(/\\/g, '/');
         const src = (raw.startsWith('http://') || raw.startsWith('https://'))
@@ -105,43 +106,40 @@ const Navbar = () => {
           />
         );
       }
-    
-    // Fallback to initials or a generic icon
     return (
-      <div className={`${sizeClass} rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm`}>
+      <div className={`${sizeClass} rounded-full bg-brand-navy flex items-center justify-center text-white font-semibold text-sm`}>
         {user?.name ? getUserInitials(user.name) : <UserCircleIcon className="h-6 w-6" />}
       </div>
     );
   };
 
-  // --- THIS IS THE UPDATED LOGIC ---
-  // The navbar will now render on ALL pages.
-  // The 'user' object (null or not-null) will decide what links to show.
-  // --- END OF FIX ---
-
   return (
-    <nav className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50 border-b border-gray-100">
+    <nav 
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-brand-cream/80 backdrop-blur-lg shadow-md border-b border-gray-200/60' 
+          : 'bg-brand-cream border-b border-transparent'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className={`flex justify-between items-center transition-all duration-300 ${isScrolled ? 'h-16' : 'h-20'}`}>
+          
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={user && user.isAdmin ? "/admin-dashboard" : "/home"} className="flex items-center">
-              <img
-                src={process.env.PUBLIC_URL + '/kkwlogo.png'}
-                alt="KKW Logo"
-                className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-full shadow-sm border-2 border-blue-100 bg-white mr-3"
-              />
-              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Lost & Found
+            <Link to={user && user.isAdmin ? "/admin-dashboard" : "/"} className="flex items-baseline space-x-2">
+              <span className="text-2xl sm:text-3xl font-bold font-serif text-gray-900 tracking-tight">
+                BackTrack
+              </span>
+              <span className="hidden sm:inline-block text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase">
+                KIT-CBE
               </span>
             </Link>
           </div>
 
-          {/* --- UPDATED NAVIGATION LINKS (DESKTOP) --- */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-1">
+          {/* Center Navigation Links (Desktop) */}
+          <div className="hidden md:flex flex-1 justify-center">
+            <div className="flex items-center space-x-2">
               {user ? (
-                // --- LOGGED-IN LINKS ---
                 user.isAdmin ? (
                   <>
                     <NavLink to="/admin-dashboard">Admin Dashboard</NavLink>
@@ -156,23 +154,23 @@ const Navbar = () => {
                   </>
                 )
               ) : (
-                // --- LOGGED-OUT LINKS (Public Landing Page) ---
                 <>
                   <NavLink to="/home">Home</NavLink>
-                  {/* You can add an "About" page here if you want */}
+                  <NavLink to="/login">Sign In</NavLink>
+                  <NavLink to="/register">Register</NavLink>
+                  <NavLink to="/admin-login">Admin Login</NavLink>
                 </>
               )}
             </div>
           </div>
-          {/* --- END OF UPDATED LINKS --- */}
-
 
           {/* Right side - Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center justify-end min-w-[120px]">
             {user ? (
-              // --- LOGGED-IN USER MENU ---
               <>
-                <NotificationBell />
+                <div className="mr-4">
+                  <NotificationBell />
+                </div>
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -180,8 +178,8 @@ const Navbar = () => {
                     aria-label="User menu"
                   >
                     {renderAvatar(false)}
-                    <span className="text-gray-700 font-medium">{user.name}</span>
-                    <svg className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'transform rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span className="text-gray-700 font-medium text-sm">{user.name}</span>
+                    <svg className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'transform rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
@@ -233,27 +231,12 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              // --- LOGGED-OUT BUTTONS (WITH REGISTER ADDED) ---
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100"
-                >
-                  Register
-                </Link>
-                <Link
-                  to="/admin-login"
-                  className="text-purple-600 hover:text-purple-700 font-medium text-sm ml-4"
-                >
-                  Admin Login
-                </Link>
-              </div>
+              <Link
+                to="/login"
+                className="px-5 py-2 rounded-md text-sm font-medium text-white bg-brand-blue hover:bg-opacity-90 transition-colors"
+              >
+                Sign In
+              </Link>
             )}
           </div>
 
@@ -261,29 +244,28 @@ const Navbar = () => {
           <div className="md:hidden flex items-center space-x-2">
             {user && <NotificationBell />}
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
-              aria-expanded="false"
-            >
-              {menuOpen ? (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
+               onClick={() => setMenuOpen(!menuOpen)}
+               className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+               aria-expanded="false"
+             >
+               {menuOpen ? (
+                 <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                 </svg>
+               ) : (
+                 <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                 </svg>
+               )}
+             </button>
           </div>
         </div>
       </div>
 
-      {/* --- UPDATED MOBILE MENU --- */}
+      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
+        <div className="md:hidden bg-brand-cream border-t border-gray-200">
           {user ? (
-            // --- LOGGED-IN MOBILE MENU ---
             <>
               <div className="pt-2 pb-3 space-y-1">
                 {user.isAdmin ? (
@@ -323,7 +305,6 @@ const Navbar = () => {
               </div>
             </>
           ) : (
-            // --- LOGGED-OUT MOBILE MENU (Your requested links) ---
             <div className="pt-2 pb-3 space-y-1">
               <MobileNavLink to="/home" onClick={() => setMenuOpen(false)}>Home</MobileNavLink>
               <MobileNavLink to="/login" onClick={() => setMenuOpen(false)}>Sign In</MobileNavLink>

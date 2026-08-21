@@ -160,7 +160,7 @@ router.post('/google-login', async (req, res) => {
     
     // Allow all email domains
     if (!ALLOW_ALL_EMAILS) {
-      const allowedDomains = ['kkwagh.edu.in'];
+      const allowedDomains = ['kitcbe.ac.in', 'kitcbe.com'];
       const emailDomain = payload.email.split('@')[1];
       
       if (!allowedDomains.includes(emailDomain)) {

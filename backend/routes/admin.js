@@ -30,7 +30,7 @@ const sendMatchEmail = async (toUser, fromUser, item, lostOrFound) => {
 
     Please reach out to them to arrange a hand-off.
 
-    - KKW Lost & Found Team
+    - KIT-CBE BackTrack Team
   `;
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -44,13 +44,13 @@ const sendMatchEmail = async (toUser, fromUser, item, lostOrFound) => {
         ${fromUser.contactInfo ? `<p><strong>Contact:</strong> ${fromUser.contactInfo}</p>` : ''}
       </div>
       <br/>
-      <p>- KKW Lost & Found Team</p>
+      <p>- KIT-CBE BackTrack Team</p>
     </div>
   `;
 
   try {
     await transporter.sendMail({
-      from: `"KKW Lost & Found" <${process.env.EMAIL_USER}>`,
+      from: `"KIT-CBE BackTrack" <${process.env.EMAIL_USER}>`,
       to: toUser.email,
       subject: subject,
       text: text,

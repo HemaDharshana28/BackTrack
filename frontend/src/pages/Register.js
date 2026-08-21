@@ -57,8 +57,8 @@ const Register = () => {
         <div>
           <Link to="/" className="flex justify-center mb-6">
                       <img
-                        src={process.env.PUBLIC_URL + '/kkwlogo.png'}
-                        alt="KKW Logo"
+                        src={process.env.PUBLIC_URL + '/kitcbe_logo.png'}
+                        alt="KIT-CBE Logo"
                         className="h-16 w-16"
                       />
                     </Link>

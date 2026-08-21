@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -30,10 +31,11 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <Router>
-            <div className="min-h-screen bg-gray-100">
+            <div className="min-h-screen flex flex-col">
               <Navbar />
-              <Routes>
-                {/* --- CHANGED THIS --- */}
+              <main className="flex-grow">
+                <Routes>
+                  {/* --- CHANGED THIS --- */}
                 <Route path="/" element={<Home />} /> {/* Home is now the landing page */}
                 <Route path="/home" element={<Home />} /> {/* Home is also here */}
                 {/* ------------------- */}
@@ -60,6 +62,8 @@ function App() {
                 {/* Redirect any other path */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              </main>
+              <Footer />
             </div>
           </Router>
         </SocketProvider>
