@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './index.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -25,21 +25,33 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 // Prefer environment variable for production; fallback to the existing client id for local/dev
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "672888718013-1pipeqojum1g4chlbtuja2i9ogbq2ff0.apps.googleusercontent.com";
 
+function MainLayout({ children }) {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
+      <main className="flex-grow">
+        {children}
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <SocketProvider>
           <Router>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-grow">
-                <Routes>
-                  {/* --- CHANGED THIS --- */}
+            <MainLayout>
+              <Routes>
+                {/* --- CHANGED THIS --- */}
                 <Route path="/" element={<Home />} /> {/* Home is now the landing page */}
                 <Route path="/home" element={<Home />} /> {/* Home is also here */}
                 {/* ------------------- */}
-                
+
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
@@ -54,7 +66,7 @@ function App() {
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/test-matching" element={<ProtectedRoute><TestMatching /></ProtectedRoute>} />
                 <Route path="/debug-auth" element={<ProtectedRoute><DebugAuth /></ProtectedRoute>} />
-                
+
                 {/* --- Admin Protected Route --- */}
                 {/* You should ideally wrap this in an AdminProtectedRoute */}
                 <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
@@ -62,9 +74,7 @@ function App() {
                 {/* Redirect any other path */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-              </main>
-              <Footer />
-            </div>
+            </MainLayout>
           </Router>
         </SocketProvider>
       </AuthProvider>
